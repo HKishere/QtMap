@@ -35,10 +35,10 @@
     <ClCompile Include="MapGraphicsView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QGraphicsItemDemo.cpp">
+    <ClCompile Include="TileItem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TileItem.cpp">
+    <ClCompile Include="MapWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -46,7 +46,7 @@
     <QtMoc Include="MapGraphicsView.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="QGraphicsItemDemo.h">
+    <QtMoc Include="MapWnd.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

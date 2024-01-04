@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QGraphicsItemDemoClass</class>
- <widget class="QMainWindow" name="QGraphicsItemDemoClass">
+ <class>MapWndClass</class>
+ <widget class="QMainWindow" name="MapWndClass">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>QGraphicsItemDemo</string>
+   <string>MapWnd</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="MapGraphicsView" name="graphicsView">
@@ -69,7 +69,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="QGraphicsItemDemo.qrc"/>
+  <include location="MapWnd.qrc"/>
  </resources>
  <connections/>
 </ui>

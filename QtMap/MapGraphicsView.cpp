@@ -6,52 +6,84 @@
 #include <QImageReader>
 #include <QBuffer>
 #include <QThread>
+#include <chrono>
+
+#define MAX_DOWNLOAD_NUM	25
+#define TILE_SIZE			256
+#define SCREEN_WIDTH_1080P	1920
+#define SCREEN_HEIGHT_1080P	1080
 
 MapGraphicsView::MapGraphicsView(QWidget* parent)
 	:QGraphicsView(parent)
 {
-	mapSizeX = 5;
-	mapSizeY = 5;
+	mapSizeX = SCREEN_WIDTH_1080P * 2 / TILE_SIZE;
+	mapSizeY = SCREEN_HEIGHT_1080P * 2 / TILE_SIZE;
 	zoom = 5;
+
+	oldOffsetX = 0;
+	oldOffsetY = 0;
 
 	for (auto i = 0; i < mapSizeX * mapSizeY; i++)
 	{
 		mapAreaList.append(new TileItem());
 		mapAreaList.back()->setTileIndex(i % mapSizeX, i / mapSizeX, zoom);
+		mapAreaList.back()->setPos(mapAreaList.back()->getX() * TILE_SIZE, mapAreaList.back()->getY() * TILE_SIZE);
+		QPixmap tile_pic = QPixmap("defaultTile.png");
+		mapAreaList.back()->setPixmap(tile_pic);
+		m_scene.addItem(mapAreaList.back());
 	}
 	setScene(&m_scene);
 	show();
 	tileInDownload = 0;
+	theadStartFlag = true;
 }
 
-void MapGraphicsView::showMap()
+void MapGraphicsView::downloadMap()
 {
-	//int tileCount = qPow(2, tileSpec.zoom);
-	for (auto tileItem : mapAreaList)
+	while (theadStartFlag)
 	{
-		QMutexLocker locker(&mutex); // 自动加锁
-		emit downLoadTile(tileItem);
-		tileInDownload++;
+		for (auto tileItem : mapAreaList)
+		{
+			if (tileItem->m_hasDownLoad == false && tileInDownload < MAX_DOWNLOAD_NUM)
+			{
+				QMutexLocker locker(&mutex); // 自动加锁
+				emit downloadTile(tileItem);
+				tileInDownload++;
+				tileItem->m_hasDownLoad = true;
+			}
+		}
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 }
 
 
-void MapGraphicsView::mousePressEvent(QMouseEvent * event)
+MapGraphicsView::~MapGraphicsView()
+{
+	theadStartFlag = false;
+	tCheckTileDownload.join();
+}
+
+void MapGraphicsView::init()
+{
+	tCheckTileDownload = std::thread(&MapGraphicsView::downloadMap, this);
+}
+
+void MapGraphicsView::mouseReleaseEvent(QMouseEvent * event)
 {
 	// 处理鼠标点击事件
 	if (event->button() == Qt::LeftButton) {
 		QPointF scenePos = mapToScene(event->pos());
 		qDebug() << "Mouse Pressed at scene position:" << scenePos;
-	}
-	if (event->button() == Qt::MidButton)
-	{
-
+		QSize viewsize = viewport()->size();
+		TileItem* item = (TileItem*)itemAt(viewsize.width() / 2, viewsize.height() / 2);
+		reBuildScene(item);
 	}
 
 	// 将事件传递给基类以确保其他处理得以执行
 	QGraphicsView::mousePressEvent(event);
 
 }
+
 
 void MapGraphicsView::wheelEvent(QWheelEvent * event)
 {
@@ -72,6 +104,35 @@ void MapGraphicsView::wheelEvent(QWheelEvent * event)
 	//QGraphicsView::wheelEvent(event);
 }
 
+void MapGraphicsView::reBuildScene(TileItem * centerTileItem)
+{
+	int nowCenterX = centerTileItem->getX();
+	int nowCenterY = centerTileItem->getY();
+
+	int offsetX = (nowCenterX - mapSizeX / 2) > 0 ? nowCenterX - mapSizeX / 2 : 0;
+	int offsetY = (nowCenterY - mapSizeY / 2) > 0 ? nowCenterY - mapSizeY / 2 : 0;
+
+	for (auto i = 0; i < mapSizeX * mapSizeY; i++)
+	{
+		int X = i % mapSizeX + offsetX;
+		int Y = i / mapSizeX + offsetY;
+
+		if ((X >= oldOffsetX && X < oldOffsetX + mapSizeX) && (Y >= oldOffsetY && Y < oldOffsetY + mapSizeY))
+		{
+			continue;
+		}
+
+		mapAreaList.append(new TileItem());
+		mapAreaList.back()->setTileIndex(X, Y, zoom);
+		mapAreaList.back()->setPos(mapAreaList.back()->getX() * TILE_SIZE, mapAreaList.back()->getY() * TILE_SIZE);
+		QPixmap tile_pic = QPixmap("defaultTile.png");
+		mapAreaList.back()->setPixmap(tile_pic);
+		m_scene.addItem(mapAreaList.back());
+	}
+	oldOffsetX = offsetX;
+	oldOffsetY = offsetY;
+}
+
 void MapGraphicsView::onTileDownloadFinish(TileItem* tileItem)
 {
 	QMutexLocker locker(&mutex); // 自动加锁
@@ -81,13 +142,13 @@ void MapGraphicsView::onTileDownloadFinish(TileItem* tileItem)
 
 
 
-IQGraphicsItemDemo::IQGraphicsItemDemo()
+IMapGraphicsView::IMapGraphicsView()
 {
 	m_strURL = "http://t0.tianditu.gov.cn/img_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=b2385d12633488be653ed20a2d4999bd";
 }
 
 
-void IQGraphicsItemDemo::onDownLoadTile(TileItem* tileItem)
+void IMapGraphicsView::onDownLoadTile(TileItem* tileItem)
 {
 	QString urlStr = m_strURL;
 
@@ -119,13 +180,11 @@ void IQGraphicsItemDemo::onDownLoadTile(TileItem* tileItem)
 	QPixmap tile_pic = QPixmap::fromImage(image);
 
 	tileItem->setPixmap(tile_pic);
-	tileItem->setPos(tileItem->getX() * 256, tileItem->getY() * 256);
-	m_scene->addItem(tileItem);
 
 	emit TileDownloadFinish(tileItem);
 }
 
-void IQGraphicsItemDemo::setSence(QGraphicsScene * scene)
+void IMapGraphicsView::setSence(QGraphicsScene * scene)
 {
 	m_scene = scene;
 }

@@ -31,7 +31,7 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
-    <QtInstall>5.12.12X64</QtInstall>
+    <QtInstall>5.12.12_msvc2017_64</QtInstall>
     <QtModules>core;gui;widgets;network</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
@@ -55,9 +55,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <IncludePath>D:\Qt\Qt5.12.12\5.12.12\msvc2017_64\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnabled>true</VcpkgEnabled>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
@@ -86,7 +89,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapGraphicsView.cpp" />
-    <ClCompile Include="QGraphicsItemDemo.cpp" />
+    <ClCompile Include="MapWnd.cpp" />
     <ClCompile Include="TileItem.cpp" />
     <QtRcc Include="qml.qrc" />
     <None Include="main.qml" />
@@ -95,7 +98,7 @@
     <QtMoc Include="MapGraphicsView.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="QGraphicsItemDemo.h" />
+    <QtMoc Include="MapWnd.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TileItem.h" />

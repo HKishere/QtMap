@@ -1,10 +1,10 @@
-#include "QGraphicsItemDemo.h"
+#include "MapWnd.h"
 #include <QtWidgets/QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    QGraphicsItemDemo w;
+	MapWnd w;
     w.show();
     return a.exec();
 }

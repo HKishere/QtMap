@@ -8,18 +8,21 @@
 #include <QGraphicsScene>
 #include "TileItem.h"
 
-class IQGraphicsItemDemo;
+class IMapGraphicsView;
 
-class QGraphicsItemDemo : public QMainWindow
+class MapWnd : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    QGraphicsItemDemo(QWidget *parent = nullptr);
-    ~QGraphicsItemDemo();
+    MapWnd(QWidget *parent = nullptr);
+
+	void init();
+
+    ~MapWnd();
 
 private:
-    Ui::QGraphicsItemDemoClass ui;
-	IQGraphicsItemDemo* backEnd;
+    Ui::MapWndClass ui;
+	IMapGraphicsView* backEnd;
 };
 

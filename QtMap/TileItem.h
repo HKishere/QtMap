@@ -9,11 +9,12 @@ public:
 	int getY() { return m_y; };
 	int getZoom() { return m_zoom; };
 
-//slots public:
-//	void getTileOnline();
+	bool m_hasDownLoad;
+
 private:
 	int m_x;
 	int m_y;
 	int m_zoom;
+
 };
 
