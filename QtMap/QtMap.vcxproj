@@ -87,6 +87,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CoordinateTransfer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MapGraphicsView.cpp" />
     <ClCompile Include="MapWnd.cpp" />
@@ -101,6 +102,7 @@
     <QtMoc Include="MapWnd.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CoordinateTransfer.h" />
     <ClInclude Include="TileItem.h" />
   </ItemGroup>
   <ItemGroup>

@@ -18,7 +18,9 @@ MapGraphicsView::MapGraphicsView(QWidget* parent)
 {
 	mapSizeX = SCREEN_WIDTH_1080P * 2 / TILE_SIZE;
 	mapSizeY = SCREEN_HEIGHT_1080P * 2 / TILE_SIZE;
-	zoom = 5;
+	m_zoom = 5;
+	m_minZoom = 4;
+	m_maxZoom = 18;
 
 	oldOffsetX = 0;
 	oldOffsetY = 0;
@@ -26,7 +28,7 @@ MapGraphicsView::MapGraphicsView(QWidget* parent)
 	for (auto i = 0; i < mapSizeX * mapSizeY; i++)
 	{
 		mapAreaList.append(new TileItem());
-		mapAreaList.back()->setTileIndex(i % mapSizeX, i / mapSizeX, zoom);
+		mapAreaList.back()->setTileIndex(i % mapSizeX, i / mapSizeX, m_zoom);
 		mapAreaList.back()->setPos(mapAreaList.back()->getX() * TILE_SIZE, mapAreaList.back()->getY() * TILE_SIZE);
 		QPixmap tile_pic = QPixmap("defaultTile.png");
 		mapAreaList.back()->setPixmap(tile_pic);
@@ -76,7 +78,7 @@ void MapGraphicsView::mouseReleaseEvent(QMouseEvent * event)
 		qDebug() << "Mouse Pressed at scene position:" << scenePos;
 		QSize viewsize = viewport()->size();
 		TileItem* item = (TileItem*)itemAt(viewsize.width() / 2, viewsize.height() / 2);
-		reBuildScene(item);
+		reBuildMoveScene(item);
 	}
 
 	// 将事件传递给基类以确保其他处理得以执行
@@ -93,10 +95,12 @@ void MapGraphicsView::wheelEvent(QWheelEvent * event)
 	// 处理滚轮滚动事件
 	if (delta > 0) {
 		qDebug() << "Mouse wheel scrolled up";
+		m_zoom++;
 		// 在这里执行向上滚动的逻辑
 	}
 	else if (delta < 0) {
 		qDebug() << "Mouse wheel scrolled down";
+		m_zoom--;
 		// 在这里执行向下滚动的逻辑
 	}
 
@@ -104,7 +108,7 @@ void MapGraphicsView::wheelEvent(QWheelEvent * event)
 	//QGraphicsView::wheelEvent(event);
 }
 
-void MapGraphicsView::reBuildScene(TileItem * centerTileItem)
+void MapGraphicsView::reBuildMoveScene(TileItem * centerTileItem)
 {
 	int nowCenterX = centerTileItem->getX();
 	int nowCenterY = centerTileItem->getY();
@@ -123,7 +127,7 @@ void MapGraphicsView::reBuildScene(TileItem * centerTileItem)
 		}
 
 		mapAreaList.append(new TileItem());
-		mapAreaList.back()->setTileIndex(X, Y, zoom);
+		mapAreaList.back()->setTileIndex(X, Y, m_zoom);
 		mapAreaList.back()->setPos(mapAreaList.back()->getX() * TILE_SIZE, mapAreaList.back()->getY() * TILE_SIZE);
 		QPixmap tile_pic = QPixmap("defaultTile.png");
 		mapAreaList.back()->setPixmap(tile_pic);
@@ -131,6 +135,11 @@ void MapGraphicsView::reBuildScene(TileItem * centerTileItem)
 	}
 	oldOffsetX = offsetX;
 	oldOffsetY = offsetY;
+}
+
+void MapGraphicsView::reBuildZoomSceen()
+{
+
 }
 
 void MapGraphicsView::onTileDownloadFinish(TileItem* tileItem)
@@ -144,7 +153,7 @@ void MapGraphicsView::onTileDownloadFinish(TileItem* tileItem)
 
 IMapGraphicsView::IMapGraphicsView()
 {
-	m_strURL = "http://t0.tianditu.gov.cn/img_c/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=c&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=b2385d12633488be653ed20a2d4999bd";
+	m_strURL = "http://t0.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=b2385d12633488be653ed20a2d4999bd";
 }
 
 
@@ -188,3 +197,5 @@ void IMapGraphicsView::setSence(QGraphicsScene * scene)
 {
 	m_scene = scene;
 }
+
+

@@ -41,6 +41,9 @@
     <ClCompile Include="MapWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CoordinateTransfer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="MapGraphicsView.h">
@@ -52,6 +55,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TileItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CoordinateTransfer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
