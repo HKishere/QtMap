@@ -4,6 +4,8 @@
 #include <QMutex>
 #include "TileItem.h"
 #include <thread>
+#include <map>
+#include <tuple>
 
 class MapGraphicsView :
 	public QGraphicsView
@@ -18,8 +20,7 @@ public:
 	void wheelEvent(QWheelEvent *event) override;
 
 	void reBuildMoveScene(TileItem* centerTileItem);
-
-	void reBuildZoomSceen();
+	TileItem * reBuildZoomSceen(TileItem * centerTileItem, QPoint pointInTile, int nextZoomLev);
 
 	void downloadMap();
 	QGraphicsScene* getScene() { return &m_scene; };
@@ -40,7 +41,8 @@ private:
 	int oldOffsetX;			//移动前的secen左上角瓦片的x
 	int oldOffsetY;			//移动前的secen左上角瓦片的y
 	QGraphicsScene m_scene;
-	QList<TileItem*> mapAreaList;	//瓦片链表
+	//QList<TileItem*> mapAreaList;	//瓦片链表
+	std::map<std::tuple<int, int, int>, TileItem*> mapAreaMap;
 
 	int tileInDownload;		//记录有几个瓦片在下载，同时下载数不能超过MAX_DOWNLOAD_NUM，否则槽函数短时间多次调用会出现问题
 	mutable QMutex mutex; // mutable关键字允许在const成员函数中修改该成员

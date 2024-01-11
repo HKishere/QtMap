@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>810</width>
-    <height>588</height>
+    <width>1252</width>
+    <height>879</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,15 +19,15 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>781</width>
-      <height>521</height>
+      <width>1231</width>
+      <height>801</height>
      </rect>
     </property>
     <property name="verticalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOff</enum>
+     <enum>Qt::ScrollBarAlwaysOn</enum>
     </property>
     <property name="horizontalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOff</enum>
+     <enum>Qt::ScrollBarAlwaysOn</enum>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -45,7 +45,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>810</width>
+     <width>1252</width>
      <height>23</height>
     </rect>
    </property>
@@ -68,8 +68,6 @@
    <header>mapgraphicsview.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="MapWnd.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
