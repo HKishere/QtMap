@@ -16,16 +16,16 @@ void TileItem::setTileIndex(int x, int y, int zoom)
 QPoint TileItem::getMapPoint(QPoint pointInTile)
 {
 	QPoint pointInMap;
-	pointInMap.setX(m_x * 256 + pointInTile.x());
-	pointInMap.setY(m_y * 256 + pointInTile.y());
+	pointInMap.setX(m_x * TILE_SIZE + pointInTile.x());
+	pointInMap.setY(m_y * TILE_SIZE + pointInTile.y());
 
 	return pointInMap;
 }
 QPoint TileItem::getTilePointFromMap(QPoint pointInMap)
 {
 	QPoint pointInTile;
-	pointInTile.setX(pointInMap.x() % 256);
-	pointInTile.setY(pointInMap.y() % 256);
+	pointInTile.setX(pointInMap.x() % TILE_SIZE);
+	pointInTile.setY(pointInMap.y() % TILE_SIZE);
 
 	return pointInTile;
 }

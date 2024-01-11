@@ -126,39 +126,31 @@ void MapGraphicsView::wheelEvent(QWheelEvent * event)
 		if (m_zoom <= m_maxZoom)
 		{
 			m_zoom++;
-			QSize viewsize = viewport()->size();
-			QPointF scenePos = mapToScene(viewsize.width() / 2, viewsize.height() / 2);
-			//TileItem* item = (TileItem*)itemAt(viewsize.width() / 2, viewsize.height() / 2);
-			TileItem* item = (TileItem*)m_scene.itemAt(scenePos, QTransform());
-			QPointF pixmapItemCenter = item->mapFromScene(scenePos);
-			qDebug() << "old center: X=" << scenePos.x() << "Y=" << scenePos.y();
-			qDebug() << "old tile: X=" << item->getX() << "Y=" << item->getY();
-			TileItem * nowitem = reBuildZoomSceen(item, QPoint(pixmapItemCenter.x(), pixmapItemCenter.y()), m_zoom);
-			viewport()->update();
-			centerOn(nowitem->getX() * TILE_SIZE , nowitem->getY() * TILE_SIZE);
-			scenePos = mapToScene(viewsize.width() / 2, viewsize.height() / 2);
-			qDebug() << "now center: X=" << scenePos.x() << "Y=" << scenePos.y();
-			qDebug() << "now center tile: X=" << nowitem->getX() * TILE_SIZE << "Y=" << nowitem->getY() * TILE_SIZE;
 		}
-		// 在这里执行向上滚动的逻辑
 	}
 	else if (delta < 0) {
 		qDebug() << "Mouse wheel scrolled down";
 		if (m_zoom >= m_minZoom)
 		{
 			m_zoom--;
-			QPointF scenePos = mapToScene(viewport()->rect().center());
-			QSize viewsize = viewport()->size();
-			TileItem* item = (TileItem*)m_scene.itemAt(scenePos, QTransform());
-			QPointF pixmapItemCenter = item->mapFromScene(scenePos);
-			TileItem * nowitem = reBuildZoomSceen(item, QPoint(pixmapItemCenter.x(), pixmapItemCenter.y()), m_zoom);
-
-			centerOn(nowitem);
-
-			qDebug() << "old tile: X=" << nowitem->getX() << "Y=" << nowitem->getY();
 		}
 		// 在这里执行向下滚动的逻辑
 	}
+	QSize viewsize = viewport()->size();
+	QPointF scenePos = mapToScene(viewsize.width() / 2, viewsize.height() / 2);
+
+	TileItem* item = (TileItem*)m_scene.itemAt(scenePos, QTransform());
+	QPointF pixmapItemCenter = item->mapFromScene(scenePos);
+
+	qDebug() << "old center: X=" << scenePos.x() << "Y=" << scenePos.y();
+	qDebug() << "old tile: X=" << item->getX() << "Y=" << item->getY();
+
+	TileItem * nowitem = reBuildZoomSceen(item, QPoint(pixmapItemCenter.x(), pixmapItemCenter.y()), m_zoom);
+	centerOn(nowitem);
+
+	scenePos = mapToScene(viewsize.width() / 2, viewsize.height() / 2);
+	qDebug() << "now center: X=" << scenePos.x() << "Y=" << scenePos.y();
+	qDebug() << "now center tile: X=" << nowitem->getX() * TILE_SIZE << "Y=" << nowitem->getY() * TILE_SIZE;
 
 	// 将事件传递给基类以确保其他处理得以执行
 	//QGraphicsView::wheelEvent(event);
@@ -199,12 +191,14 @@ void MapGraphicsView::reBuildMoveScene(TileItem * centerTileItem)
 		{
 			tile = it->second;
 		}
-		tile->setPos(tile->getX() * TILE_SIZE, tile->getY() * TILE_SIZE);
+		QPoint LTpointInMap = tile->getMapPoint(QPoint(0, 0));
+
+		tile->setPos(LTpointInMap.x(), LTpointInMap.y());
 		m_scene.addItem(tile);
 
 		if (i == mapSizeX * mapSizeY - 1)
 		{
-			m_scene.setSceneRect(0, 0, tile->getX() * TILE_SIZE, tile->getY() * TILE_SIZE);
+			m_scene.setSceneRect(0, 0, LTpointInMap.x(), LTpointInMap.y());
 		}
 	}
 
@@ -226,7 +220,7 @@ TileItem * MapGraphicsView::reBuildZoomSceen(TileItem * centerTileItem, QPoint p
 
 	TileItem* tile = nullptr;
 
-	for (auto it = mapAreaMap.begin(); it != mapAreaMap.end(); it++)
+	for (auto it = mapAreaMap.begin(); it != mapAreaMap.end(); it++)//不是这个层级的都删了
 	{
 		if (std::get<2>(it->first) != nextZoomLev && std::get<2>(it->first) == centerTileItem->getZoom())
 		{
@@ -234,7 +228,7 @@ TileItem * MapGraphicsView::reBuildZoomSceen(TileItem * centerTileItem, QPoint p
 		}
 	}
 
-	if (mapAreaMap.find(tilePos) == mapAreaMap.end())
+	if (mapAreaMap.find(tilePos) == mapAreaMap.end())//先去map里面找
 	{
 		tile = new TileItem(centerTileIndex.x(), centerTileIndex.y(), nextZoomLev);
 		//tile->setTileIndex(centerTileIndex.x(), centerTileIndex.y(), nextZoomLev);
@@ -246,9 +240,10 @@ TileItem * MapGraphicsView::reBuildZoomSceen(TileItem * centerTileItem, QPoint p
 	{
 		tile = mapAreaMap[tilePos];
 	}
-	tile->setPos(tile->getX() * TILE_SIZE, tile->getY() * TILE_SIZE);
+	QPoint LTpointInMap = tile->getMapPoint(QPoint(0, 0));
+	tile->setPos(LTpointInMap.x(), LTpointInMap.y());
 	qDebug() << "new center: X=" << tile->getX() << "Y=" << tile->getY();
-	qDebug() << "new center Pos: X=" << tile->getX() * TILE_SIZE << "Y=" << tile->getY() * TILE_SIZE;
+	qDebug() << "new center Pos: X=" << LTpointInMap.x() << "Y=" << LTpointInMap.y();
 	m_scene.addItem(tile);
 
 	reBuildMoveScene(tile);
